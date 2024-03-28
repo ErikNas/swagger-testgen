@@ -1,0 +1,63 @@
+plugins {
+    id 'application'
+    id 'java'
+}
+defaultTasks 'jar'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+mainClassName = "org.example.App"
+
+group 'org.example'
+version '0.1'
+
+repositories {
+    maven {
+        url('https://jitpack.io')
+    }
+    maven {
+        url "https://repo.digital.rt.ru/repository/maven-central/"
+    }
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'org.slf4j:slf4j-simple:1.7.32'
+
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.14.2'
+    implementation 'com.fasterxml.jackson.module:jackson-module-jsonSchema:2.14.2'
+
+    // Converter libs
+    implementation 'com.github.saasquatch:json-schema-inferrer:0.1.4'
+
+    // Validator libs
+    implementation 'com.github.everit-org.json-schema:org.everit.json.schema:1.14.0'
+    implementation 'com.networknt:json-schema-validator:1.0.64'
+
+    // Args parser
+    implementation 'info.picocli:picocli:4.6.3'
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.example.App'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
