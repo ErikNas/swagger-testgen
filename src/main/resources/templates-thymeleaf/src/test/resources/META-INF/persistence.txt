@@ -1,0 +1,32 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+    <persistence-unit name="staging.db">
+        <class>[(${packageName})].models.db.TblModel1Db</class>
+        <class>[(${packageName})].models.db.TblModel2Db</class>
+        <exclude-unlisted-classes>false</exclude-unlisted-classes>
+        <properties>
+            <property name="hibernate.connection.url" value="jdbc:postgresql://10.11.12.13:5432/schema_name"/>
+            <property name="hibernate.connection.username" value="dbUserName"/>
+            <property name="hibernate.connection.password" value="dbPassword"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL94Dialect"/>
+            <property name="hibernate.cache.use_query_cache" value="false"/>
+            <property name="hibernate.c3p0.max_size" value="3"/>
+            <property name="hibernate.c3p0.timeout" value="1"/>
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="demo.db">
+        <class>[(${packageName})].models.db.TblModel1Db</class>
+        <class>[(${packageName})].models.db.TblModel2Db</class>
+        <properties>
+            <property name="hibernate.connection.url" value="jdbc:postgresql://10.11.12.14:5432/schema_name"/>
+            <property name="hibernate.connection.username" value="dbUserName"/>
+            <property name="hibernate.connection.password" value="dbPassword"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL94Dialect"/>
+            <property name="hibernate.cache.use_query_cache" value="false"/>
+            <property name="hibernate.c3p0.max_size" value="3"/>
+            <property name="hibernate.c3p0.timeout" value="1"/>
+        </properties>
+    </persistence-unit>
+</persistence>

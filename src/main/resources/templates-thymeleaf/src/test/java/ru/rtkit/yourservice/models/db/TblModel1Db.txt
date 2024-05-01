@@ -1,0 +1,25 @@
+package [(${packageName})].models.db;
+
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.sql.Timestamp;
+
+@Data
+@RequiredArgsConstructor
+@Entity
+@Table(name = "schema_name.table1_name")
+public class TblModel1Db {
+    @Id
+    private Integer id;
+    @Column(name = "dt_event ")
+    private Timestamp dtEvent;
+    @Column(name = "id_session")
+    private String idSession;
+    @Column(name = "id_script")
+    private String idScript;
+}

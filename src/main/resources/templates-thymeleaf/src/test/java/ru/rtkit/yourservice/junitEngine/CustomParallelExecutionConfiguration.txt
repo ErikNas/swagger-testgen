@@ -1,0 +1,48 @@
+package [(${packageName})].junitEngine;
+
+import org.junit.platform.engine.support.hierarchical.ParallelExecutionConfiguration;
+
+class CustomParallelExecutionConfiguration implements ParallelExecutionConfiguration {
+
+    private final int parallelism;
+    private final int minimumRunnable;
+    private final int maxPoolSize;
+    private final int corePoolSize;
+    private final int keepAliveSeconds;
+
+    CustomParallelExecutionConfiguration(int parallelism, int minimumRunnable, int maxPoolSize, int corePoolSize,
+                                         int keepAliveSeconds) {
+        this.parallelism = parallelism;
+        this.minimumRunnable = minimumRunnable;
+        this.maxPoolSize = maxPoolSize;
+        this.corePoolSize = corePoolSize;
+        this.keepAliveSeconds = keepAliveSeconds;
+    }
+
+    @Override
+    public int getParallelism() {
+        return parallelism;
+    }
+
+    @Override
+    public int getMinimumRunnable() {
+//        workaround jor java17, details https://github.com/SeleniumHQ/selenium/issues/10113#issuecomment-1037103666
+        return 0;
+//        return minimumRunnable;
+    }
+
+    @Override
+    public int getMaxPoolSize() {
+        return maxPoolSize;
+    }
+
+    @Override
+    public int getCorePoolSize() {
+        return corePoolSize;
+    }
+
+    @Override
+    public int getKeepAliveSeconds() {
+        return keepAliveSeconds;
+    }
+}

@@ -1,0 +1,106 @@
+package [(${packageName})].tests;
+
+import io.qameta.allure.Param;
+import io.qameta.allure.Story;
+import io.qameta.allure.TmsLink;
+import io.restassured.path.json.JsonPath;
+import org.json.JSONObject;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static io.qameta.allure.model.Parameter.Mode.HIDDEN;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static org.junit.jupiter.params.provider.Arguments.of;
+import static [(${packageName})].helpers.allure.AllureAssertions.assertEquals;
+import static [(${packageName})].helpers.allure.AllureAssertions.assertThat;
+import static [(${packageName})].helpers.allure.AllureHelper.setTmsLink;
+import static [(${packageName})].helpers.api.Endpoints.[(${endpointVarName})];
+
+@Story("POST [(${endpoint})]")
+@DisplayName("POST [(${endpoint})]")
+public class [(${testName})] extends BaseTest {
+
+    @Test
+    @TmsLink("TMSLINK-1234")
+    @DisplayName("Корректный запрос")
+    void positiveTest() {
+        JSONObject body = new JSONObject()
+            .put("key", "value");
+        api.post(resp200, [(${endpointVarName})], body, "pathParam");
+    }
+[# th:if="${post.requestBody}"]
+    @TmsLink("TMSLINK-1234")
+    @DisplayName("[TMSLINK-1234] Запрос с некорректным телом запроса: ")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidBody")
+    void requestWithInvalidBody(@Param(mode = HIDDEN) String testName,
+                                JSONObject invalidBody,
+                                String expectedError,
+                                int tmsLink) {
+//        setDisplayName(displayName);
+        setTmsLink(tmsLink);
+
+        JsonPath resp = api.post(resp400, [(${endpointVarName})], invalidBody, "pathParam")
+                .jsonPath();
+        assertEquals(expectedError, resp.get("message"), "Запрос вернул ошибку: " + expectedError);
+//        assertThat(resp.get("message"), MatchesPattern.matchesPattern(expectedError), "Запрос вернул ошибку: " + expectedError);
+//        assertThat(resp.get("message"), Matchers.equalTo(expectedError), "Запрос вернул ошибку: " + expectedError);
+    }
+
+    private Stream<Arguments> invalidBody() {
+        return Stream.of(
+                of(
+                        "Сервер вернет ошибку 400 Bad Request, если: отправить пустое тело",
+                        new JSONObject(),
+                        "body can't be empty",
+                        123456
+                )
+        );
+    }
+[/]
+[# th:if="${post.parameters!=null and post.parameters[0].required}"]
+    @TmsLink("TMSLINK-1234")
+    @DisplayName("[TMSLINK-1234] Запрос с некорректным параметром запроса: ")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidParams")
+    void requestWithInvalidParams(@Param(mode = HIDDEN) String testName,
+                                  Map<String, Object> invalidParams,
+                                  String expectedError,
+                                  int tmsLink) {
+//        setDisplayName(displayName);
+        setTmsLink(tmsLink);
+
+        JSONObject body = new JSONObject();
+        JsonPath resp = api.post(resp400, [(${endpointVarName})], body, invalidParams)
+                .jsonPath();
+        assertEquals(expectedError, resp.get("message"), "Запрос вернул ошибку: " + expectedError);
+//        assertThat(resp.get("message"), MatchesPattern.matchesPattern(expectedError), "Запрос вернул ошибку: " + expectedError);
+//        assertThat(resp.get("message"), Matchers.equalTo(expectedError), "Запрос вернул ошибку: " + expectedError);
+    }
+
+    private Stream<Arguments> invalidParams() {
+        return Stream.of(
+            [# th:each="parameter: ${post.parameters}"]
+                [# th:if="${parameter.required}"]
+                of(
+                        "Сервер вернет ошибку 400 Bad Request, если: Не отправить [(${parameter.name})]",
+                        new HashMap<>() {{
+                            put("pageNumber", 0);
+                        }},
+                        "[(${parameter.name})] can't be empty",
+                        123456
+                ),
+                [/]
+            [/]
+        );
+    }
+[/]
+}

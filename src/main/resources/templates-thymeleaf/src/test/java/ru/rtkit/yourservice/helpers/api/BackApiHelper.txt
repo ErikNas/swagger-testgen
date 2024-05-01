@@ -1,0 +1,13 @@
+package [(${packageName})].helpers.api;
+
+public class BackApiHelper extends ApiHelper {
+
+    public BackApiHelper(String uri) {
+        super(uri);
+    }
+
+    public BackApiHelper(String uri, String token) {
+        super(uri);
+        this.token = token;
+    }
+}

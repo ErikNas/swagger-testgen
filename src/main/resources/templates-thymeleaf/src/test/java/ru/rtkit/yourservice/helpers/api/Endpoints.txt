@@ -1,0 +1,7 @@
+package [(${packageName})].helpers.api;
+
+public class Endpoints {
+    [# th:each="endpoint: ${endpoints}"]
+    public static final String [(${endpoint.name})] = "[(${endpoint.value})]";
+    [/]
+}

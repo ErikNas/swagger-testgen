@@ -1,0 +1,13 @@
+package [(${packageName})].listeners;
+
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.TestPlan;
+
+public class CleaningListener implements TestExecutionListener {
+
+    @Override
+    public void testPlanExecutionFinished(TestPlan testPlan) {
+        TestExecutionListener.super.testPlanExecutionFinished(testPlan);
+        // cleaning logic after test run finished
+    }
+}
