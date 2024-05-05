@@ -102,6 +102,16 @@ public class Main {
                         String.format("tests/%s/Patch%s.java", tagToPackage, generateTestName(path)),
                         endpointInfo.toMap());
             }
+//            DELETE
+            if (pathsJson.getJSONObject(path).has("delete")) {
+                endpointInfo.put("testName", "Delete" + generateTestName(path));
+                addInfoAboutObligatoryParams(endpointInfo, "delete");
+                addInfoAboutPathParams(endpointInfo, "delete");
+                proc.processToJava(
+                        "tests/DeleteTest.txt",
+                        String.format("tests/%s/Delete%s.java", tagToPackage, generateTestName(path)),
+                        endpointInfo.toMap());
+            }
         }
 
         swaggerJson.put("packageName", packageName);
@@ -123,6 +133,21 @@ public class Main {
         proc.process("./src/test/resources/junit-platform.properties.txt",
                 "/src/test/resources/junit-platform.properties.properties",
                 baseDataSet.get());
+    }
+
+    private static void addInfoAboutPathParams(JSONObject endpointInfo, String methodName) {
+        JSONObject methodInfo = endpointInfo.getJSONObject(methodName);
+        if (methodInfo.has("parameters")) {
+            JSONArray parameters = methodInfo.getJSONArray("parameters");
+            JSONArray pathParams = new JSONArray();
+            for (Object parameter : parameters) {
+                JSONObject parameterJson = (JSONObject) parameter;
+                if ("path".equals(parameterJson.getString("in"))) {
+                    pathParams.put(parameterJson);
+                }
+            }
+            methodInfo.put("path_parameters", pathParams);
+        }
     }
 
     private static void addInfoAboutObligatoryParams(JSONObject endpointInfo, String methodName) {
