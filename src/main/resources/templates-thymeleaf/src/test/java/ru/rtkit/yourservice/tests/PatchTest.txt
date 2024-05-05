@@ -68,7 +68,7 @@ public class [(${testName})] extends BaseTest {
         );
     }
 [/]
-[# th:if="${patch.parameters!=null and patch.parameters[0].required}"]
+[# th:if="${patch.obligatory_parameters!=null}"]
     @TmsLink("TMSLINK-1234")
     @DisplayName("[TMSLINK-1234] Запрос с некорректным параметром запроса: ")
     @ParameterizedTest(name = "{0}")
@@ -90,18 +90,14 @@ public class [(${testName})] extends BaseTest {
 
     private Stream<Arguments> invalidParams() {
         return Stream.of(
-            [# th:each="parameter: ${patch.parameters}"]
-                [# th:if="${parameter.required}"]
-                of(
-                        "Сервер вернет ошибку 400 Bad Request, если: Не отправить [(${parameter.name})]",
-                        new HashMap<>() {{
-                            put("pageNumber", 0);
-                        }},
-                        "[(${parameter.name})] can't be empty",
-                        123456
-                ),
-                [/]
-            [/]
+            [# th:each="parameter: ${patch.obligatory_parameters}"] of(
+                "Сервер вернет ошибку 400 Bad Request, если: Не отправить [(${parameter.name})]",
+                new HashMap<>() {{
+                    put("pageNumber", 0);
+                }},
+                "[(${parameter.name})] can't be empty",
+                123456
+            )[# th:unless="${parameterStat.last}"],[/][/]
         );
     }
 [/]

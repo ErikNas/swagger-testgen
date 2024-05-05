@@ -42,8 +42,7 @@ public class [(${testName})] extends BaseTest {
 //        assertThat(respJson.getString("attr_name"), equalTo("expected_val"), "attr_name = expected_val");
 //        assertEquals(respJson.getString("attr_name"), "expected_val", "attr_name = expected_val");
     }
-
-[# th:if="${get.parameters!=null and get.parameters[0].required}"]
+[# th:if="${get.obligatory_parameters!=null}"]
     @TmsLink("TMSLINK-1234")
     @DisplayName("[TMSLINK-1234] Запрос без обязательного параметра: ")
     @ParameterizedTest(name = "{0}")
@@ -64,18 +63,14 @@ public class [(${testName})] extends BaseTest {
 
     private Stream<Arguments> invalidParams() {
         return Stream.of(
-            [# th:each="parameter: ${get.parameters}"]
-                [# th:if="${parameter.required}"]
-                of(
-                        "Сервер вернет ошибку 400 Bad Request, если: Не отправить [(${parameter.name})]",
-                        new HashMap<>() {{
-                            put("pageNumber", 0);
-                        }},
-                        "[(${parameter.name})] can't be empty",
-                        123456
-                ),
-                [/]
-            [/]
+            [# th:each="parameter: ${get.obligatory_parameters}"] of (
+                "Сервер вернет ошибку 400 Bad Request, если: Не отправить [(${parameter.name})]",
+                new HashMap<>() {{
+                    put("pageNumber", 0);
+                }},
+                "[(${parameter.name})] can't be empty",
+                123456
+            )[# th:unless="${parameterStat.last}"],[/][/]
         );
     }
 [/]

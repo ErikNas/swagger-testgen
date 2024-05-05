@@ -25,10 +25,6 @@ public class Processor {
             out = outFolder + out;
         }
         writeStringToFile(new File(out), result, "UTF-8");
-
-//        ./src/main/resources/templates-thymeleaf/settings.txt
-//        ./src/test/java/ru/rtkit/yourservice/config/AppConfig.txt
-//        /Users/stanislavbartosh/autotests/java/vcfront/swagger-testgen/src/main/resources/templates-thymeleaf/settings.txt
     }
 
     public void process(String template, String out, Map<String, Object> contextMap) throws IOException {
@@ -51,8 +47,6 @@ public class Processor {
     public void processToJava(String template, String outName, Map<String, Object> contextMap) throws IOException {
         Context context = new Context();
         context.setVariables(contextMap);
-//        context.set
-//        String out = template.replace(".txt", ".java");
         process(templateCodePath + template, outCodePath + outName, context);
     }
 
