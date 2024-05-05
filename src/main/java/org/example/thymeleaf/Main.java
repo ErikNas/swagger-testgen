@@ -2,6 +2,8 @@ package org.example.thymeleaf;
 
 import org.json.JSONObject;
 import org.example.DataManager;
+import ru.homyakin.iuliia.Schemas;
+import ru.homyakin.iuliia.Translator;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +19,7 @@ import static org.example.thymeleaf.Constants.packageName;
 
 public class Main {
     static String swaggerSpec = "./src/main/resources/SwaggerSpecExample.json";
+    static Translator translator = new Translator(Schemas.ICAO_DOC_9303);
 
     public static void main(String[] args) throws IOException {
         Processor proc = new Processor();
@@ -60,25 +63,39 @@ public class Main {
             endpointInfo.put("endpoint", path);
             endpointInfo.put("endpointVarName", endpointNameToVarName(path));
             endpointInfo.put("packageName", packageName);
+            String tagToPackage = tagToPackageName(endpointInfo);
+            endpointInfo.put("tag", tagToPackage);
 //            GET
             if (pathsJson.getJSONObject(path).has("get")) {
                 endpointInfo.put("testName", "Get" + generateTestName(path));
-                proc.processToJava("tests/GetTest.txt", "tests/Get" + generateTestName(path) + ".java", endpointInfo.toMap());
+                proc.processToJava(
+                        "tests/GetTest.txt",
+                        String.format("tests/%s/Get%s.java", tagToPackage, generateTestName(path)),
+                        endpointInfo.toMap());
             }
 //            POST
             if (pathsJson.getJSONObject(path).has("post")) {
                 endpointInfo.put("testName", "Post" + generateTestName(path));
-                proc.processToJava("tests/PostTest.txt", "tests/Post" + generateTestName(path) + ".java", endpointInfo.toMap());
+                proc.processToJava(
+                        "tests/PostTest.txt",
+                        String.format("tests/%s/Post%s.java", tagToPackage, generateTestName(path)),
+                        endpointInfo.toMap());
             }
 //            PUT
             if (pathsJson.getJSONObject(path).has("put")) {
                 endpointInfo.put("testName", "Put" + generateTestName(path));
-                proc.processToJava("tests/PutTest.txt", "tests/Put" + generateTestName(path) + ".java", endpointInfo.toMap());
+                proc.processToJava(
+                        "tests/PutTest.txt",
+                        String.format("tests/%s/Put%s.java", tagToPackage, generateTestName(path)),
+                        endpointInfo.toMap());
             }
 //            PATCH
             if (pathsJson.getJSONObject(path).has("patch")) {
                 endpointInfo.put("testName", "Patch" + generateTestName(path));
-                proc.processToJava("tests/PatchTest.txt", "tests/Patch" + generateTestName(path) + ".java", endpointInfo.toMap());
+                proc.processToJava(
+                        "tests/PatchTest.txt",
+                        String.format("tests/%s/Patch%s.java", tagToPackage, generateTestName(path)),
+                        endpointInfo.toMap());
             }
         }
 
@@ -101,6 +118,28 @@ public class Main {
         proc.process("./src/test/resources/junit-platform.properties.txt",
                 "/src/test/resources/junit-platform.properties.properties",
                 baseDataSet.get());
+    }
+
+    private static String tagToPackageName(JSONObject endpointInfo) {
+        String method;
+        if (endpointInfo.has("post")) {
+            method = "post";
+        } else if (endpointInfo.has("get")) {
+            method = "get";
+        } else if (endpointInfo.has("patch")) {
+            method = "patch";
+        } else if (endpointInfo.has("put")) {
+            method = "put";
+        } else {
+            method = "delete";
+        }
+        String tag = endpointInfo.getJSONObject(method)
+                .getJSONArray("tags")
+                .getString(0);
+        return translator.translate(tag)
+                .toLowerCase()
+                .replace(" ", "_")
+                .replace("-", "_");
     }
 
     private static Map<String, Object> generateEndpoints(JSONObject swaggerJson) {
