@@ -5,6 +5,7 @@ import io.qameta.allure.Story;
 import io.qameta.allure.TmsLink;
 import io.restassured.path.json.JsonPath;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,13 +30,22 @@ import static [(${packageName})].helpers.api.Endpoints.[(${endpointVarName})];
 @DisplayName("PATCH [(${endpoint})]")
 public class [(${testName})] extends BaseTest {
 
+[# th:each="parameter: ${patch.path_parameters}"]
+    String [(${parameter.name})];[/]
+
+    @BeforeAll
+    void setup() {
+        [# th:each="parameter: ${patch.path_parameters}"]
+        String [(${parameter.name})] = null;[/]
+    }
+
     @Test
     @TmsLink("TMSLINK-1234")
     @DisplayName("Корректный запрос")
     void positiveTest() {
         JSONObject body = new JSONObject()
             .put("key", "value");
-        api.patch(resp200, [(${endpointVarName})], body, "pathParam");
+        api.patch(resp200, [(${endpointVarName})], body[# th:each="parameter: ${patch.path_parameters}"], [(${parameter.name})][# th:unless="${parameterStat.last}"][/][/]);
     }
 
 [# th:if="${patch.requestBody}"]
@@ -50,7 +60,7 @@ public class [(${testName})] extends BaseTest {
 //        setDisplayName(displayName);
         setTmsLink(tmsLink);
 
-        JsonPath resp = api.patch(resp400, [(${endpointVarName})], invalidBody, "pathParam")
+        JsonPath resp = api.patch(resp400, [(${endpointVarName})], invalidBody[# th:each="parameter: ${patch.path_parameters}"], [(${parameter.name})][# th:unless="${parameterStat.last}"][/][/])
                 .jsonPath();
         assertEquals(expectedError, resp.get("message"), "Запрос вернул ошибку: " + expectedError);
 //        assertThat(resp.get("message"), MatchesPattern.matchesPattern(expectedError), "Запрос вернул ошибку: " + expectedError);
@@ -66,17 +76,16 @@ public class [(${testName})] extends BaseTest {
                         123456
                 )
         );
-    }
-[/]
-[# th:if="${patch.obligatory_parameters!=null}"]
+    }[/]
+[# th:if="${not #lists.isEmpty(patch.obligatory_query_parameters)}"]
     @TmsLink("TMSLINK-1234")
     @DisplayName("[TMSLINK-1234] Запрос с некорректным параметром запроса: ")
     @ParameterizedTest(name = "{0}")
-    @MethodSource("invalidParams")
-    void requestWithInvalidParams(@Param(mode = HIDDEN) String testName,
-                                  Map<String, Object> invalidParams,
-                                  String expectedError,
-                                  int tmsLink) {
+    @MethodSource("invalidQueryParams")
+    void requestWithInvalidQueryParams(@Param(mode = HIDDEN) String testName,
+                                       Map<String, Object> invalidParams,
+                                       String expectedError,
+                                       int tmsLink) {
 //        setDisplayName(displayName);
         setTmsLink(tmsLink);
 
@@ -88,9 +97,9 @@ public class [(${testName})] extends BaseTest {
 //        assertThat(resp.get("message"), Matchers.equalTo(expectedError), "Запрос вернул ошибку: " + expectedError);
     }
 
-    private Stream<Arguments> invalidParams() {
+    private Stream<Arguments> invalidQueryParams() {
         return Stream.of(
-            [# th:each="parameter: ${patch.obligatory_parameters}"] of(
+            [# th:each="parameter: ${patch.obligatory_query_parameters}"] of(
                 "Сервер вернет ошибку 400 Bad Request, если: Не отправить [(${parameter.name})]",
                 new HashMap<>() {{
                     put("pageNumber", 0);
@@ -99,6 +108,5 @@ public class [(${testName})] extends BaseTest {
                 123456
             )[# th:unless="${parameterStat.last}"],[/][/]
         );
-    }
-[/]
+    }[/]
 }

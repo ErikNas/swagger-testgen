@@ -69,7 +69,8 @@ public class Main {
 //            GET
             if (pathsJson.getJSONObject(path).has("get")) {
                 endpointInfo.put("testName", "Get" + generateTestName(path));
-                addInfoAboutObligatoryParams(endpointInfo, "get");
+                addInfoAboutQueryParams(endpointInfo, "get");
+                addInfoAboutPathParams(endpointInfo, "get");
                 proc.processToJava(
                         "tests/GetTest.txt",
                         String.format("tests/%s/Get%s.java", tagToPackage, generateTestName(path)),
@@ -78,7 +79,8 @@ public class Main {
 //            POST
             if (pathsJson.getJSONObject(path).has("post")) {
                 endpointInfo.put("testName", "Post" + generateTestName(path));
-                addInfoAboutObligatoryParams(endpointInfo, "post");
+                addInfoAboutQueryParams(endpointInfo, "post");
+                addInfoAboutPathParams(endpointInfo, "post");
                 proc.processToJava(
                         "tests/PostTest.txt",
                         String.format("tests/%s/Post%s.java", tagToPackage, generateTestName(path)),
@@ -87,7 +89,8 @@ public class Main {
 //            PUT
             if (pathsJson.getJSONObject(path).has("put")) {
                 endpointInfo.put("testName", "Put" + generateTestName(path));
-                addInfoAboutObligatoryParams(endpointInfo, "put");
+                addInfoAboutQueryParams(endpointInfo, "put");
+                addInfoAboutPathParams(endpointInfo, "put");
                 proc.processToJava(
                         "tests/PutTest.txt",
                         String.format("tests/%s/Put%s.java", tagToPackage, generateTestName(path)),
@@ -96,7 +99,8 @@ public class Main {
 //            PATCH
             if (pathsJson.getJSONObject(path).has("patch")) {
                 endpointInfo.put("testName", "Patch" + generateTestName(path));
-                addInfoAboutObligatoryParams(endpointInfo, "patch");
+                addInfoAboutQueryParams(endpointInfo, "patch");
+                addInfoAboutPathParams(endpointInfo, "patch");
                 proc.processToJava(
                         "tests/PatchTest.txt",
                         String.format("tests/%s/Patch%s.java", tagToPackage, generateTestName(path)),
@@ -105,7 +109,7 @@ public class Main {
 //            DELETE
             if (pathsJson.getJSONObject(path).has("delete")) {
                 endpointInfo.put("testName", "Delete" + generateTestName(path));
-                addInfoAboutObligatoryParams(endpointInfo, "delete");
+                addInfoAboutQueryParams(endpointInfo, "delete");
                 addInfoAboutPathParams(endpointInfo, "delete");
                 proc.processToJava(
                         "tests/DeleteTest.txt",
@@ -142,6 +146,7 @@ public class Main {
             JSONArray pathParams = new JSONArray();
             for (Object parameter : parameters) {
                 JSONObject parameterJson = (JSONObject) parameter;
+//                полагается, что все path_params являются обязательными
                 if ("path".equals(parameterJson.getString("in"))) {
                     pathParams.put(parameterJson);
                 }
@@ -150,18 +155,23 @@ public class Main {
         }
     }
 
-    private static void addInfoAboutObligatoryParams(JSONObject endpointInfo, String methodName) {
+    private static void addInfoAboutQueryParams(JSONObject endpointInfo, String methodName) {
         JSONObject methodInfo = endpointInfo.getJSONObject(methodName);
         if (methodInfo.has("parameters")) {
             JSONArray parameters = methodInfo.getJSONArray("parameters");
-            JSONArray obligatoryParams = new JSONArray();
+            JSONArray obligatoryQueryParams = new JSONArray();
+            JSONArray queryParams = new JSONArray();
             for (Object parameter : parameters) {
                 JSONObject parameterJson = (JSONObject) parameter;
-                if (!parameterJson.has("required") || parameterJson.getBoolean("required")) {
-                    obligatoryParams.put(parameterJson);
+                if ("query".equals(parameterJson.getString("in"))) {
+                    queryParams.put(parameterJson);
+                    if (!parameterJson.has("required") || parameterJson.getBoolean("required")) {
+                        obligatoryQueryParams.put(parameterJson);
+                    }
                 }
             }
-            methodInfo.put("obligatory_parameters", obligatoryParams);
+            methodInfo.put("obligatory_query_parameters", obligatoryQueryParams);
+            methodInfo.put("query_parameters", queryParams);
         }
     }
 

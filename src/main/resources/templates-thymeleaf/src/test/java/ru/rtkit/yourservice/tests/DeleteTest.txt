@@ -5,6 +5,7 @@ import io.qameta.allure.Story;
 import io.qameta.allure.TmsLink;
 import io.restassured.path.json.JsonPath;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,12 +30,13 @@ import static [(${packageName})].helpers.api.Endpoints.[(${endpointVarName})];
 @DisplayName("POST [(${endpoint})]")
 public class [(${testName})] extends BaseTest {
 [# th:each="parameter: ${delete.path_parameters}"]
-    String [(${parameter.name})];
-[/]
+    String [(${parameter.name})];[/]
+
     @BeforeAll
     void setup() {
         // create object to delete
-        [# th:each="parameter: ${delete.path_parameters}"]String [(${parameter.name})] = null;[/]
+        [# th:each="parameter: ${delete.path_parameters}"]
+        String [(${parameter.name})] = null;[/]
     }
 
     @Test

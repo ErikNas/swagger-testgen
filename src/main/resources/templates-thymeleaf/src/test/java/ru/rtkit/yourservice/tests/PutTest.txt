@@ -5,6 +5,7 @@ import io.qameta.allure.Story;
 import io.qameta.allure.TmsLink;
 import io.restassured.path.json.JsonPath;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,6 +29,14 @@ import static [(${packageName})].helpers.api.Endpoints.[(${endpointVarName})];
 @Story("PUT [(${endpoint})]")
 @DisplayName("PUT [(${endpoint})]")
 public class [(${testName})] extends BaseTest {
+[# th:each="parameter: ${put.path_parameters}"]
+    String [(${parameter.name})];[/]
+
+    @BeforeAll
+    void setup() {
+        [# th:each="parameter: ${put.path_parameters}"]
+        String [(${parameter.name})] = null;[/]
+    }
 
     @Test
     @TmsLink("TMSLINK-1234")
@@ -35,9 +44,8 @@ public class [(${testName})] extends BaseTest {
     void positiveTest() {
         JSONObject body = new JSONObject()
             .put("key", "value");
-        api.put(resp200, [(${endpointVarName})], body, "pathParam");
+        api.put(resp200, [(${endpointVarName})], body[# th:each="parameter: ${put.path_parameters}"], [(${parameter.name})][# th:unless="${parameterStat.last}"][/][/]);
     }
-
 [# th:if="${put.requestBody}"]
     @TmsLink("TMSLINK-1234")
     @DisplayName("[TMSLINK-1234] Запрос с некорректным телом запроса: ")
@@ -50,7 +58,7 @@ public class [(${testName})] extends BaseTest {
 //        setDisplayName(displayName);
         setTmsLink(tmsLink);
 
-        JsonPath resp = api.put(resp400, [(${endpointVarName})], invalidBody, "pathParam")
+        JsonPath resp = api.put(resp400, [(${endpointVarName})], invalidBody[# th:each="parameter: ${put.path_parameters}"], [(${parameter.name})][# th:unless="${parameterStat.last}"][/][/])
                 .jsonPath();
         assertEquals(expectedError, resp.get("message"), "Запрос вернул ошибку: " + expectedError);
 //        assertThat(resp.get("message"), MatchesPattern.matchesPattern(expectedError), "Запрос вернул ошибку: " + expectedError);
@@ -66,17 +74,16 @@ public class [(${testName})] extends BaseTest {
                         123456
                 )
         );
-    }
-[/]
-[# th:if="${put.obligatory_parameters!=null}"]
+    }[/]
+[# th:if="${not #lists.isEmpty(put.obligatory_query_parameters)}"]
     @TmsLink("TMSLINK-1234")
     @DisplayName("[TMSLINK-1234] Запрос с некорректным параметром запроса: ")
     @ParameterizedTest(name = "{0}")
-    @MethodSource("invalidParams")
-    void requestWithInvalidParams(@Param(mode = HIDDEN) String testName,
-                                  Map<String, Object> invalidParams,
-                                  String expectedError,
-                                  int tmsLink) {
+    @MethodSource("invalidQueryParams")
+    void requestWithInvalidQueryParams(@Param(mode = HIDDEN) String testName,
+                                       Map<String, Object> invalidParams,
+                                       String expectedError,
+                                       int tmsLink) {
 //        setDisplayName(displayName);
         setTmsLink(tmsLink);
 
@@ -88,9 +95,9 @@ public class [(${testName})] extends BaseTest {
 //        assertThat(resp.get("message"), Matchers.equalTo(expectedError), "Запрос вернул ошибку: " + expectedError);
     }
 
-    private Stream<Arguments> invalidParams() {
+    private Stream<Arguments> invalidQueryParams() {
         return Stream.of(
-            [# th:each="parameter: ${put.obligatory_parameters}"] of(
+            [# th:each="parameter: ${put.obligatory_query_parameters}"] of(
                 "Сервер вернет ошибку 400 Bad Request, если: Не отправить [(${parameter.name})]",
                 new HashMap<>() {{
                     put("pageNumber", 0);
