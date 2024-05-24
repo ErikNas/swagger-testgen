@@ -5,6 +5,7 @@ public class Constants {
 
     public static String packageName = "ru.ispovedalnya." + projectName;
     public static String outFolder = "out/" + projectName + "/";
+    public static String templateFolder = "./src/main/resources/templates-thymeleaf";
 
     public static String templateCodePath = "./src/test/java/ru/rtkit/yourservice/";
     public static String outCodePath = outFolder + "src/test/java/" + packageName.replace(".", "/") + "/";;

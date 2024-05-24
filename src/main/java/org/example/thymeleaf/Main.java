@@ -1,22 +1,19 @@
 package org.example.thymeleaf;
 
+import org.example.DataManager;
+import org.example.model.inner.Endpoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.example.DataManager;
 import ru.homyakin.iuliia.Schemas;
 import ru.homyakin.iuliia.Translator;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.apache.commons.io.FileUtils.copyFile;
-import static org.example.thymeleaf.Constants.outFolder;
-import static org.example.thymeleaf.Constants.packageName;
+import static org.example.thymeleaf.Constants.*;
 
 public class Main {
     static String swaggerSpec = "./src/main/resources/SwaggerSpecExample.json";
@@ -26,16 +23,22 @@ public class Main {
         Processor proc = new Processor();
         BaseTemplateDataSet baseDataSet = new BaseTemplateDataSet();
 
-        copyFile(new File("./src/main/resources/templates-thymeleaf/.gitignore"), new File(outFolder + "/.gitignore"));
-        copyFile(new File("./src/main/resources/templates-thymeleaf/gradlew"), new File(outFolder + "/gradlew"));
-        copyFile(new File("./src/main/resources/templates-thymeleaf/gradlew.bat"), new File(outFolder + "/gradlew.bat"));
-        copyFile(new File("./src/main/resources/templates-thymeleaf/src/test/resources/allure.properties"), new File(outFolder + "/src/test/resources/allure.properties"));
-        copyFile(new File("./src/main/resources/templates-thymeleaf/src/test/resources/stage.properties"), new File(outFolder + "/src/test/resources/stage.properties"));
-        copyFile(new File("./src/main/resources/templates-thymeleaf/src/test/resources/demo.properties"), new File(outFolder + "/src/test/resources/demo.properties"));
+        copyFile(new File(templateFolder + "/.gitignore"),
+                new File(outFolder + "/.gitignore"));
+        copyFile(new File(templateFolder + "/gradlew"),
+                new File(outFolder + "/gradlew"));
+        copyFile(new File(templateFolder + "/gradlew.bat"),
+                new File(outFolder + "/gradlew.bat"));
+        copyFile(new File(templateFolder + "/src/test/resources/allure.properties"),
+                new File(outFolder + "/src/test/resources/allure.properties"));
+        copyFile(new File(templateFolder + "/src/test/resources/stage.properties"),
+                new File(outFolder + "/src/test/resources/stage.properties"));
+        copyFile(new File(templateFolder + "/src/test/resources/demo.properties"),
+                new File(outFolder + "/src/test/resources/demo.properties"));
 
-        copyFile(new File("./src/main/resources/templates-thymeleaf/build.txt"), new File(outFolder + "/build.gradle"));
+        copyFile(new File(templateFolder + "/build.txt"), new File(outFolder + "/build.gradle"));
         proc.process("settings.txt", "settings.gradle", baseDataSet.get());
-        copyDirectory(new File("./src/main/resources/templates-thymeleaf/gradle"), new File(outFolder + "/gradle"));
+        copyDirectory(new File(templateFolder + "/gradle"), new File(outFolder + "/gradle"));
 
         proc.processToJava("config/AppConfig.txt", baseDataSet.get());
         proc.processToJava("config/AppConfigProvider.txt", baseDataSet.get());
@@ -62,7 +65,7 @@ public class Main {
 
             JSONObject endpointInfo = pathsJson.getJSONObject(path);
             endpointInfo.put("endpoint", path);
-            endpointInfo.put("endpointVarName", endpointNameToVarName(path));
+            endpointInfo.put("endpointVarName", Endpoint.pathToVarName(path));
             endpointInfo.put("packageName", packageName);
             String tagToPackage = tagToPackageName(endpointInfo);
             endpointInfo.put("tag", tagToPackage);
@@ -119,10 +122,9 @@ public class Main {
         }
 
         swaggerJson.put("packageName", packageName);
-        Map<String, Object> endpoints = generateEndpoints(swaggerJson);
-        endpoints.put("packageName", packageName);
 
-        proc.processToJava("helpers/api/Endpoints.txt", endpoints);
+        proc.processToJava("helpers/api/Endpoints.txt", Endpoint.generate(swaggerJson), packageName);
+
         proc.processToJava("tests/BaseTest.txt", swaggerJson.toMap());
 
         proc.process("./src/test/resources/META-INF/services/org.junit.jupiter.api.extension.Extension.txt",
@@ -195,33 +197,6 @@ public class Main {
                 .toLowerCase()
                 .replace(" ", "_")
                 .replace("-", "_");
-    }
-
-    private static Map<String, Object> generateEndpoints(JSONObject swaggerJson) {
-        List<JSONObject> endpoints = new ArrayList<>();
-        JSONObject paths = swaggerJson.getJSONObject("paths");
-        for (String endpointName : paths.keySet()) {
-            String endpointName1 = endpointNameToVarName(endpointName);
-            JSONObject item = new JSONObject()
-                    .put("name", endpointName1)
-                    .put("value", endpointName);
-            endpoints.add(item);
-        }
-        return new JSONObject()
-                .put("endpoints", endpoints)
-                .toMap();
-    }
-
-    private static String endpointNameToVarName(String endpointName) {
-        String normEndpointName = endpointName;
-        if (endpointName.startsWith("/")) {
-            normEndpointName = endpointName.substring(1);
-        }
-        return normEndpointName.toUpperCase()
-                .replace("/{", "_BY_")
-                .replace("}", "")
-                .replace("-", "_")
-                .replace("/", "_");
     }
 
     private static String generateTestName(String path) {

@@ -1,11 +1,13 @@
 package org.example.thymeleaf;
 
+import org.example.model.inner.Tag;
 import org.json.JSONObject;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 import static org.apache.commons.io.FileUtils.writeStringToFile;
@@ -44,6 +46,15 @@ public class Processor {
         process(templateCodePath + template, outCodePath + out, context);
     }
 
+    public void processToJava(String template, Map<String, Tag> contextMap, String packageName) throws IOException {
+        Context context = new Context();
+        context.setVariable("tags", Collections.unmodifiableMap(contextMap));
+        context.setVariable("packageName", packageName);
+        String out = template.replace(".txt", ".java");
+        process(templateCodePath + template, outCodePath + out, context);
+
+    }
+
     public void processToJava(String template, String outName, Map<String, Object> contextMap) throws IOException {
         Context context = new Context();
         context.setVariables(contextMap);
@@ -54,4 +65,6 @@ public class Processor {
         String out = template.replace(".txt", ".java");
         process(templateCodePath + template, outCodePath + out, contextJsonObject.toMap());
     }
+
+
 }
