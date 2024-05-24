@@ -1,0 +1,86 @@
+package [(${packageName})].tests.[(${tag})];
+
+import io.qameta.allure.*;
+import io.restassured.response.Response;
+import io.restassured.path.json.JsonPath;
+import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import [(${packageName})].tests.BaseTest;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import static io.qameta.allure.model.Parameter.Mode.HIDDEN;
+import static org.hamcrest.Matchers.equalTo;
+import static [(${packageName})].helpers.allure.AllureAssertions.*;
+import static [(${packageName})].helpers.allure.AllureHelper.setDisplayName;
+import static [(${packageName})].helpers.allure.AllureHelper.setTmsLink;
+import static [(${packageName})].helpers.api.Endpoints.[(${endpointVarName})];
+import static org.hamcrest.text.MatchesPattern.matchesPattern;
+import static org.junit.jupiter.params.provider.Arguments.of;
+
+@Story("GET [(${endpoint})]")
+@DisplayName("GET [(${endpoint})]")
+public class [(${testName})] extends BaseTest {
+[# th:each="parameter: ${get.path_parameters}"]
+    String [(${parameter.name})];[/]
+
+    @BeforeAll
+    void setup() {
+        [# th:each="parameter: ${get.path_parameters}"]
+        String [(${parameter.name})] = null;[/]
+    }
+
+    @Test
+    @TmsLink("TMSLINK-1234")
+    @DisplayName("Корректный запрос")
+    void positiveTest() {
+        Map<String, Object> params = new HashMap<>();
+        JsonPath resp = api.get(resp200, [(${endpointVarName})][# th:each="parameter: ${get.path_parameters}"], [(${parameter.name})][/], params)
+                .jsonPath();
+        assertThat(resp.getString("attr_name"), equalTo("expected_val"), "attr_name = expected_val");
+
+//        Response resp = api.get(resp200, [(${endpointVarName})][# th:each="parameter: ${get.path_parameters}"], [(${parameter.name})][/], params)
+//        JSONObject respJson = new JSONObject(resp.asString());
+//        assertThat(respJson.getString("attr_name"), equalTo("expected_val"), "attr_name = expected_val");
+//        assertEquals(respJson.getString("attr_name"), "expected_val", "attr_name = expected_val");
+    }
+[# th:if="${not #lists.isEmpty(get.obligatory_query_parameters)}"]
+    @TmsLink("TMSLINK-1234")
+    @DisplayName("[TMSLINK-1234] Запрос без обязательного параметра: ")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("invalidParams")
+    void requestWithInvalidParams(@Param(mode = HIDDEN) String testName,
+                                  Map<String, Object> invalidParams,
+                                  String expectedError,
+                                  int tmsLink) {
+//        setDisplayName("еще один способ задать DisplayName");
+        setTmsLink(tmsLink);
+
+        JsonPath resp = api.get(resp400, "[(${endpoint})]", invalidParams)
+                .jsonPath();
+        assertEquals(expectedError, resp.get("message"), "Запрос вернул ошибку: " + expectedError);
+//        assertThat(resp.get("message"), MatchesPattern.matchesPattern(expectedError), "Запрос вернул ошибку: " + expectedError);
+//        assertThat(resp.get("message"), Matchers.equalTo(expectedError), "Запрос вернул ошибку: " + expectedError);
+    }
+
+    private Stream<Arguments> invalidParams() {
+        return Stream.of(
+            [# th:each="parameter: ${get.obligatory_query_parameters}"] of (
+                "Сервер вернет ошибку 400 Bad Request, если: Не отправить [(${parameter.name})]",
+                new HashMap<>() {{
+                    put("pageNumber", 0);
+                }},
+                "[(${parameter.name})] can't be empty",
+                123456
+            )[# th:unless="${parameterStat.last}"],[/][/]
+        );
+    }
+[/]
+}

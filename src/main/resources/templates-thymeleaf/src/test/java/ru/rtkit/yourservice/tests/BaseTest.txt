@@ -1,0 +1,43 @@
+package [(${packageName})].tests;
+
+import io.restassured.specification.ResponseSpecification;
+import org.json.JSONObject;
+import org.junit.jupiter.api.TestInstance;
+import [(${packageName})].helpers.api.BackApiHelper;
+import [(${packageName})].helpers.db.DbHelper;
+
+import static io.restassured.RestAssured.expect;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static [(${packageName})].config.AppConfigProvider.props;
+
+@TestInstance(PER_CLASS)
+public class BaseTest {
+    public static ResponseSpecification resp200 = expect().statusCode(200);
+    public static ResponseSpecification resp404 = expect().statusCode(404);
+    public static ResponseSpecification resp400 = expect().statusCode(400);
+    public static ResponseSpecification resp405 = expect().statusCode(405);
+    public static ResponseSpecification resp403 = expect().statusCode(403);
+    public static ResponseSpecification resp301 = expect().statusCode(301);
+    public static ResponseSpecification resp401 = expect().statusCode(401);
+    public static ResponseSpecification resp500 = expect().statusCode(500);
+    public static ResponseSpecification resp502 = expect().statusCode(502);
+
+    public static BackApiHelper api;
+    public static DbHelper db;
+
+    static {
+        api = new BackApiHelper(props().uri());
+        String token = auth(props().email(), props().password());
+        api.setToken("Bearer token=" + token);
+    }
+
+    private static String auth(String email, String password) {
+        // auth logic
+        JSONObject body = new JSONObject()
+                .put("email", email)
+                .put("password", password);
+        return api.post(resp200, "AUTH_ENDPOINT", body)
+                .jsonPath()
+                .getString("token");
+    }
+}

@@ -1,0 +1,8 @@
+package [(${packageName})].helpers.api;
+
+public class Endpoints {
+    [# th:each="tagMap: ${tags}"][# th:each="tag: (${tagMap.value})"]
+    // [(${tag.name})]
+    [# th:each="endpoint: (${tag.endpoints})"]public static final String [(${endpoint.varName})] = "[(${endpoint.path})]";
+    [/][/][/]
+}

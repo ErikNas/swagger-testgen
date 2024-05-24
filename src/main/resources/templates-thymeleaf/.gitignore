@@ -1,0 +1,7 @@
+.idea
+.gradle
+.allure
+build
+!build/allure-results/categories.json
+build.gradle/
+allure-results*

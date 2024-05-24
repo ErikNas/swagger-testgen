@@ -4,9 +4,6 @@ plugins {
 }
 defaultTasks 'jar'
 
-sourceCompatibility = 11
-targetCompatibility = 11
-
 mainClassName = "org.example.App"
 
 group 'org.example'
@@ -15,9 +12,6 @@ version '0.1'
 repositories {
     maven {
         url('https://jitpack.io')
-    }
-    maven {
-        url "https://repo.digital.rt.ru/repository/maven-central/"
     }
     mavenCentral()
 }
@@ -44,6 +38,9 @@ dependencies {
     // Args parser
     implementation 'info.picocli:picocli:4.6.3'
 
+    implementation 'org.thymeleaf:thymeleaf:3.1.2.RELEASE'
+    implementation 'commons-io:commons-io:2.15.1'
+    implementation 'ru.homyakin:iuliia-java:1.8'
 }
 
 test {

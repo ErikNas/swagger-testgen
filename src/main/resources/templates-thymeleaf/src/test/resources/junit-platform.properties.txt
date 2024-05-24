@@ -1,0 +1,13 @@
+#parameters to execute top-level classes in parallel but methods in same thread
+junit.jupiter.execution.parallel.enabled=true
+junit.jupiter.execution.parallel.mode.default=same_thread
+junit.jupiter.execution.parallel.mode.classes.default=concurrent
+
+# fixed parallelism strategy
+junit.jupiter.execution.parallel.config.strategy=fixed
+junit.jupiter.execution.parallel.config.fixed.parallelism=2
+
+# custom parallelism strategy (optional if fixed strategy doesn't work)
+#junit.jupiter.execution.parallel.config.strategy=custom
+#junit.jupiter.execution.parallel.config.custom.parallelism=2
+#junit.jupiter.execution.parallel.config.custom.class=[(${packageName})].junitEngine.CustomParallelExecutionStrategy

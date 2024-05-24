@@ -1,0 +1,25 @@
+package [(${packageName})].helpers.db;
+
+import io.qameta.allure.Step;
+import ru.rtkit.yourservice.models.db.TblModel1Db;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import java.util.List;
+
+import static ru.rtkit.yourservice.config.AppConfigProvider.props;
+
+public class DbHelper {
+    private static EntityManagerFactory emf = Persistence.createEntityManagerFactory(props().stand() + ".log.db");
+    private static EntityManager entityManager = emf.createEntityManager();
+
+    @Step("[db] Найти content из таблицы table1_name по id_session")
+    public static synchronized List<TblModel1Db> getByIdSession(String idSession) {
+        entityManager.clear();
+        return entityManager
+                .createQuery("SELECT t FROM TblModel1Db t where t.idSession = :value1 and t.route = 'IN'", TblModel1Db.class)
+                .setParameter("value1", idSession)
+                .getResultList();
+    }
+}
