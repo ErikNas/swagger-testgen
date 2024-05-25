@@ -61,8 +61,8 @@ public class Main {
 
         JSONObject pathsJson = swaggerJson.getJSONObject("paths");
         Set<String> paths = pathsJson.keySet();
-        for (String path : paths) {
 
+        for (String path : paths) {
             JSONObject endpointInfo = pathsJson.getJSONObject(path);
             endpointInfo.put("endpoint", path);
             endpointInfo.put("endpointVarName", Endpoint.pathToVarName(path));
@@ -71,9 +71,10 @@ public class Main {
             endpointInfo.put("tag", tagToPackage);
 //            GET
             if (pathsJson.getJSONObject(path).has("get")) {
-                endpointInfo.put("testName", "Get" + generateTestName(path));
+                endpointInfo.put("testName", generateTestName(path, "get"));
                 addInfoAboutQueryParams(endpointInfo, "get");
                 addInfoAboutPathParams(endpointInfo, "get");
+                addInfoAboutResponseCodes(endpointInfo, "get");
                 proc.processToJava(
                         "tests/GetTest.txt",
                         String.format("tests/%s/Get%s.java", tagToPackage, generateTestName(path)),
@@ -81,9 +82,10 @@ public class Main {
             }
 //            POST
             if (pathsJson.getJSONObject(path).has("post")) {
-                endpointInfo.put("testName", "Post" + generateTestName(path));
+                endpointInfo.put("testName", generateTestName(path, "post"));
                 addInfoAboutQueryParams(endpointInfo, "post");
                 addInfoAboutPathParams(endpointInfo, "post");
+                addInfoAboutResponseCodes(endpointInfo, "post");
                 proc.processToJava(
                         "tests/PostTest.txt",
                         String.format("tests/%s/Post%s.java", tagToPackage, generateTestName(path)),
@@ -91,9 +93,10 @@ public class Main {
             }
 //            PUT
             if (pathsJson.getJSONObject(path).has("put")) {
-                endpointInfo.put("testName", "Put" + generateTestName(path));
+                endpointInfo.put("testName", generateTestName(path, "put"));
                 addInfoAboutQueryParams(endpointInfo, "put");
                 addInfoAboutPathParams(endpointInfo, "put");
+                addInfoAboutResponseCodes(endpointInfo, "put");
                 proc.processToJava(
                         "tests/PutTest.txt",
                         String.format("tests/%s/Put%s.java", tagToPackage, generateTestName(path)),
@@ -101,9 +104,10 @@ public class Main {
             }
 //            PATCH
             if (pathsJson.getJSONObject(path).has("patch")) {
-                endpointInfo.put("testName", "Patch" + generateTestName(path));
+                endpointInfo.put("testName", generateTestName(path, "patch"));
                 addInfoAboutQueryParams(endpointInfo, "patch");
                 addInfoAboutPathParams(endpointInfo, "patch");
+                addInfoAboutResponseCodes(endpointInfo, "patch");
                 proc.processToJava(
                         "tests/PatchTest.txt",
                         String.format("tests/%s/Patch%s.java", tagToPackage, generateTestName(path)),
@@ -111,9 +115,10 @@ public class Main {
             }
 //            DELETE
             if (pathsJson.getJSONObject(path).has("delete")) {
-                endpointInfo.put("testName", "Delete" + generateTestName(path));
+                endpointInfo.put("testName", generateTestName(path, "delete"));
                 addInfoAboutQueryParams(endpointInfo, "delete");
                 addInfoAboutPathParams(endpointInfo, "delete");
+                addInfoAboutResponseCodes(endpointInfo, "delete");
                 proc.processToJava(
                         "tests/DeleteTest.txt",
                         String.format("tests/%s/Delete%s.java", tagToPackage, generateTestName(path)),
@@ -139,6 +144,20 @@ public class Main {
         proc.process("./src/test/resources/junit-platform.properties.txt",
                 "/src/test/resources/junit-platform.properties.properties",
                 baseDataSet.get());
+    }
+
+    private static void addInfoAboutResponseCodes(JSONObject endpointInfo, String methodName) {
+        JSONObject methodInfo = endpointInfo.getJSONObject(methodName);
+        if (methodInfo.has("responses")) {
+            JSONObject responses = methodInfo.getJSONObject("responses");
+            JSONArray responseCodes = new JSONArray();
+            for (String respCode : responses.keySet()) {
+                responseCodes.put(new JSONObject()
+                        .put("code", respCode)
+                        .put("description", responses.getJSONObject(respCode).getString("description")));
+            }
+            methodInfo.put("response_codes", responseCodes);
+        }
     }
 
     private static void addInfoAboutPathParams(JSONObject endpointInfo, String methodName) {
@@ -207,12 +226,19 @@ public class Main {
                 .split("/");
         StringBuilder testName = new StringBuilder();
         for (String endpointPart : strings) {
-            if (!"".equals(endpointPart)) {
-                testName.append(endpointPart.substring(0, 1).toUpperCase())
-                        .append(endpointPart, 1, endpointPart.length());
-            }
+            testName.append(firstUpperCase(endpointPart));
         }
         testName.append("Test");
         return testName.toString();
     }
+
+    private static String generateTestName(String path, String prefix) {
+        return firstUpperCase(prefix) + firstUpperCase(generateTestName(path));
+    }
+
+    public static String firstUpperCase(String word) {
+        if (word == null || word.isEmpty()) return "";
+        return word.substring(0, 1).toUpperCase() + word.substring(1);
+    }
+
 }

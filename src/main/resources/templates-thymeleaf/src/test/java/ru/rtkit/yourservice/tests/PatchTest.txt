@@ -38,16 +38,16 @@ public class [(${testName})] extends BaseTest {
         [# th:each="parameter: ${patch.path_parameters}"]
         String [(${parameter.name})] = null;[/]
     }
-
+    [# th:each="resp: ${patch.response_codes}"]
     @Test
     @TmsLink("TMSLINK-1234")
     @DisplayName("Корректный запрос")
+    @Description("Проверка, что метод возвращает: [(${resp.description})]")
     void positiveTest() {
         JSONObject body = new JSONObject()
             .put("key", "value");
-        api.patch(resp200, [(${endpointVarName})], body[# th:each="parameter: ${patch.path_parameters}"], [(${parameter.name})][# th:unless="${parameterStat.last}"][/][/]);
-    }
-
+        api.patch(resp[(${resp.code})], [(${endpointVarName})], body[# th:each="parameter: ${patch.path_parameters}"], [(${parameter.name})][# th:unless="${parameterStat.last}"][/][/]);
+    }[/]
 [# th:if="${patch.requestBody}"]
     @TmsLink("TMSLINK-1234")
     @DisplayName("[TMSLINK-1234] Запрос с некорректным телом запроса: ")
