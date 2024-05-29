@@ -38,11 +38,12 @@ public class [(${testName})] extends BaseTest {
         [# th:each="parameter: ${delete.path_parameters}"]
         String [(${parameter.name})] = null;[/]
     }
-
+    [# th:each="resp: ${delete.response_codes}"]
     @Test
     @TmsLink("TMSLINK-1234")
     @DisplayName("Корректный запрос")
+    @Description("Проверка, что метод возвращает: [(${resp.description})]")
     void positiveTest() {
-        api.delete(resp200, [(${endpointVarName})], [# th:each="parameter: ${delete.path_parameters}"][(${parameter.name})][# th:unless="${parameterStat.last}"], [/][/]);
-    }
+        api.delete(resp[(${resp.code})], [(${endpointVarName})], [# th:each="parameter: ${delete.path_parameters}"][(${parameter.name})][# th:unless="${parameterStat.last}"], [/][/]);
+    }[/]
 }
