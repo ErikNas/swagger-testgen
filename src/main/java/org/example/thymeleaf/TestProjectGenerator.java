@@ -15,11 +15,11 @@ import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.example.thymeleaf.Constants.*;
 
-public class Main {
+public class TestProjectGenerator {
     static String swaggerSpec = "./src/main/resources/SwaggerSpecExample.json";
     static Translator translator = new Translator(Schemas.ICAO_DOC_9303);
 
-    public static void main(String[] args) throws IOException {
+    public void generate() throws IOException {
         Processor proc = new Processor();
         BaseTemplateDataSet baseDataSet = new BaseTemplateDataSet();
 

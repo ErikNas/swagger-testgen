@@ -1,6 +1,6 @@
-package org.example;
+package org.example.cli;
 
-import org.example.subcommands.EndpointsGenerator;
+import org.example.cli.subcommands.MainGenerator;
 
 import static picocli.CommandLine.Command;
 import static picocli.CommandLine.Option;
@@ -17,10 +17,15 @@ import static picocli.CommandLine.Option;
         parameterListHeading = "%nПараметры команд:%n",
         optionListHeading = "%nОпции:%n",
         commandListHeading = "%nКоманды:%n",
-        subcommands = {EndpointsGenerator.class})
-public class Testgen {
+        subcommands = {MainGenerator.class //, SomeClass.class, SomeClass2.class
+        })
+public class CliRunner {
 
     @Option(names = {"-d", "--debug"}, description = "Enable debug mode.", hidden = true)
     public boolean debug;
+
+    @Option(names = {"-h", "--help"},
+            description = "Работает.")
+    public boolean libList2 = false;
 
 }
