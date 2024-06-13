@@ -25,7 +25,7 @@ public class CliRunner {
     public boolean debug;
 
     @Option(names = {"-h", "--help"},
-            description = "Работает.")
+            description = "Выводит эту справку на экран")
     public boolean libList2 = false;
 
 }

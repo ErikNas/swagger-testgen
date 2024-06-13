@@ -16,8 +16,16 @@ import static org.apache.commons.io.FileUtils.copyFile;
 import static org.example.thymeleaf.Constants.*;
 
 public class TestProjectGenerator {
-    static String swaggerSpec = "./src/main/resources/SwaggerSpecExample.json";
-    static Translator translator = new Translator(Schemas.ICAO_DOC_9303);
+    String swaggerSpec = "./src/main/resources/SwaggerSpecExample.json";
+    Translator translator = new Translator(Schemas.ICAO_DOC_9303);
+
+    public void setSwaggerSpec(String swaggerSpec) {
+        this.swaggerSpec = swaggerSpec;
+    }
+
+    public void setTemplateResourcePath(String templateResourcePath) {
+        Constants.templateResourcePath = templateResourcePath;
+    }
 
     public void generate() throws IOException {
         Processor proc = new Processor();
@@ -146,7 +154,7 @@ public class TestProjectGenerator {
                 baseDataSet.get());
     }
 
-    private static void addInfoAboutResponseCodes(JSONObject endpointInfo, String methodName) {
+    private void addInfoAboutResponseCodes(JSONObject endpointInfo, String methodName) {
         JSONObject methodInfo = endpointInfo.getJSONObject(methodName);
         if (methodInfo.has("responses")) {
             JSONObject responses = methodInfo.getJSONObject("responses");
@@ -160,7 +168,7 @@ public class TestProjectGenerator {
         }
     }
 
-    private static void addInfoAboutPathParams(JSONObject endpointInfo, String methodName) {
+    private void addInfoAboutPathParams(JSONObject endpointInfo, String methodName) {
         JSONObject methodInfo = endpointInfo.getJSONObject(methodName);
         if (methodInfo.has("parameters")) {
             JSONArray parameters = methodInfo.getJSONArray("parameters");
@@ -176,7 +184,7 @@ public class TestProjectGenerator {
         }
     }
 
-    private static void addInfoAboutQueryParams(JSONObject endpointInfo, String methodName) {
+    private void addInfoAboutQueryParams(JSONObject endpointInfo, String methodName) {
         JSONObject methodInfo = endpointInfo.getJSONObject(methodName);
         if (methodInfo.has("parameters")) {
             JSONArray parameters = methodInfo.getJSONArray("parameters");
@@ -196,7 +204,7 @@ public class TestProjectGenerator {
         }
     }
 
-    private static String tagToPackageName(JSONObject endpointInfo) {
+    private String tagToPackageName(JSONObject endpointInfo) {
         String method;
         if (endpointInfo.has("post")) {
             method = "post";
@@ -218,7 +226,7 @@ public class TestProjectGenerator {
                 .replace("-", "_");
     }
 
-    private static String generateTestName(String path) {
+    private String generateTestName(String path) {
         String[] strings = path.replace("{", "by/")
                 .replace("}", "")
                 .replace("-", "/")
@@ -232,11 +240,11 @@ public class TestProjectGenerator {
         return testName.toString();
     }
 
-    private static String generateTestName(String path, String prefix) {
+    private String generateTestName(String path, String prefix) {
         return firstUpperCase(prefix) + firstUpperCase(generateTestName(path));
     }
 
-    public static String firstUpperCase(String word) {
+    public String firstUpperCase(String word) {
         if (word == null || word.isEmpty()) return "";
         return word.substring(0, 1).toUpperCase() + word.substring(1);
     }

@@ -38,8 +38,14 @@ public class MainGenerator implements Runnable {
 
     @Override
     public void run() {
+        if (swaggerSpec == null || swaggerSpec.isEmpty()) {
+            swaggerSpec = "/resources/SwaggerSpecExample.json";
+        }
         try {
-            new TestProjectGenerator().generate();
+            TestProjectGenerator tpg = new TestProjectGenerator();
+            tpg.setTemplateResourcePath("/resources/");
+            tpg.setSwaggerSpec(swaggerSpec);
+            tpg.generate();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
