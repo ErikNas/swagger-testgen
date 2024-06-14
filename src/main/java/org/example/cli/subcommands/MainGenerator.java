@@ -4,6 +4,7 @@ import org.example.logging.Logger;
 import org.example.thymeleaf.TestProjectGenerator;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Scanner;
 
 import static picocli.CommandLine.*;
@@ -47,6 +48,8 @@ public class MainGenerator implements Runnable {
             tpg.setSwaggerSpec(swaggerSpec);
             tpg.generate();
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }

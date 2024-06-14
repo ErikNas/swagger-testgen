@@ -9,6 +9,7 @@ import ru.homyakin.iuliia.Translator;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Set;
 
 import static org.apache.commons.io.FileUtils.copyDirectory;
@@ -27,11 +28,11 @@ public class TestProjectGenerator {
         Constants.templateResourcePath = templateResourcePath;
     }
 
-    public void generate() throws IOException {
+    public void generate() throws IOException, URISyntaxException {
         Processor proc = new Processor();
         BaseTemplateDataSet baseDataSet = new BaseTemplateDataSet();
 
-        copyFile(new File(templateFolder + "/.gitignore"),
+        copyFile(new File(getClass().getResource(templateFolder + "/.gitignore").toURI()),
                 new File(outFolder + "/.gitignore"));
         copyFile(new File(templateFolder + "/gradlew"),
                 new File(outFolder + "/gradlew"));
