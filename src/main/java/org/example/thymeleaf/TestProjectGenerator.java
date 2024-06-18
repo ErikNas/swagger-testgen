@@ -1,6 +1,6 @@
 package org.example.thymeleaf;
 
-import org.example.DataManager;
+import org.apache.commons.io.IOUtils;
 import org.example.model.inner.Endpoint;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,15 +9,17 @@ import ru.homyakin.iuliia.Translator;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
-import static org.apache.commons.io.FileUtils.copyDirectory;
-import static org.apache.commons.io.FileUtils.copyFile;
+import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import static org.example.thymeleaf.Constants.*;
 
 public class TestProjectGenerator {
-    String swaggerSpec = "./src/main/resources/SwaggerSpecExample.json";
+    String swaggerSpec = "SwaggerSpecExample.json";
     Translator translator = new Translator(Schemas.ICAO_DOC_9303);
 
     public void setSwaggerSpec(String swaggerSpec) {
@@ -32,22 +34,26 @@ public class TestProjectGenerator {
         Processor proc = new Processor();
         BaseTemplateDataSet baseDataSet = new BaseTemplateDataSet();
 
-        copyFile(new File(getClass().getResource(templateFolder + "/.gitignore").toURI()),
-                new File(outFolder + "/.gitignore"));
-        copyFile(new File(templateFolder + "/gradlew"),
-                new File(outFolder + "/gradlew"));
-        copyFile(new File(templateFolder + "/gradlew.bat"),
-                new File(outFolder + "/gradlew.bat"));
-        copyFile(new File(templateFolder + "/src/test/resources/allure.properties"),
-                new File(outFolder + "/src/test/resources/allure.properties"));
-        copyFile(new File(templateFolder + "/src/test/resources/stage.properties"),
-                new File(outFolder + "/src/test/resources/stage.properties"));
-        copyFile(new File(templateFolder + "/src/test/resources/demo.properties"),
-                new File(outFolder + "/src/test/resources/demo.properties"));
+        writeResourceToFile(templateFolder + "/gitignore",
+                outFolder + "/.gitignore");
+        writeResourceToFile(templateFolder + "/gradlew",
+                outFolder + "/gradlew");
+        writeResourceToFile(templateFolder + "/gradlew.bat",
+                outFolder + "/gradlew.bat");
+        writeResourceToFile(templateFolder + "/src/test/resources/allure.properties",
+                outFolder + "/src/test/resources/allure.properties");
+        writeResourceToFile(templateFolder + "/src/test/resources/stage.properties",
+                outFolder + "/src/test/resources/stage.properties");
+        writeResourceToFile(templateFolder + "/src/test/resources/demo.properties",
+                outFolder + "/src/test/resources/demo.properties");
 
-        copyFile(new File(templateFolder + "/build.txt"), new File(outFolder + "/build.gradle"));
+        writeResourceToFile(templateFolder + "/build.txt", outFolder + "/build.gradle");
+        writeResourceToFile(templateFolder + "/gradle/wrapper/gradle-wrapper.jar",
+                outFolder + "/gradle/wrapper/gradle-wrapper.jar");
+
+        writeResourceToFile(templateFolder + "/gradle/wrapper/gradle-wrapper.properties",
+                outFolder + "/gradle/wrapper/gradle-wrapper.properties");
         proc.process("settings.txt", "settings.gradle", baseDataSet.get());
-        copyDirectory(new File(templateFolder + "/gradle"), new File(outFolder + "/gradle"));
 
         proc.processToJava("config/AppConfig.txt", baseDataSet.get());
         proc.processToJava("config/AppConfigProvider.txt", baseDataSet.get());
@@ -65,7 +71,9 @@ public class TestProjectGenerator {
         proc.processToJava("models/db/TblModel1Db.txt", baseDataSet.get());
         proc.processToJava("models/db/TblModel2Db.txt", baseDataSet.get());
 
-        String jsonString = DataManager.getJsonString(swaggerSpec);
+//        String jsonString = DataManager.getJsonString(swaggerSpec);
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("SwaggerSpecExample.json");
+        String jsonString = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
         JSONObject swaggerJson = new JSONObject(jsonString);
 
         JSONObject pathsJson = swaggerJson.getJSONObject("paths");
@@ -250,4 +258,12 @@ public class TestProjectGenerator {
         return word.substring(0, 1).toUpperCase() + word.substring(1);
     }
 
+    private void writeResourceToFile(String resourceName, String newFilePathName) throws IOException {
+        InputStream inputStream = getClass()
+                .getClassLoader()
+                .getResourceAsStream(resourceName);
+
+        File targetFile = new File(newFilePathName);
+        copyInputStreamToFile(inputStream, targetFile);
+    }
 }

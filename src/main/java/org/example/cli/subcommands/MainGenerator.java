@@ -27,10 +27,6 @@ public class MainGenerator implements Runnable {
             description = "Print list of validation library.")
     public boolean libList = false;
 
-    @Option(names = {"-h", "--help"},
-            description = "Работает.")
-    public boolean libList2 = false;
-
     @Parameters(index = "0", arity = "0..1", description = "Файл или ссылка на спецификацию Swagger.")
     private String swaggerSpec;
 

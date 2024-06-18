@@ -23,9 +23,4 @@ public class CliRunner {
 
     @Option(names = {"-d", "--debug"}, description = "Enable debug mode.", hidden = true)
     public boolean debug;
-
-    @Option(names = {"-h", "--help"},
-            description = "Выводит эту справку на экран")
-    public boolean libList2 = false;
-
 }
