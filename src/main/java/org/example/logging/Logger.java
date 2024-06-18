@@ -1,34 +1,34 @@
-package org.example.output;
+package org.example.logging;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Msg {
+public class Logger {
 
     private List<Object> stack;
     private final String prefix;
 
-    public Msg() {
+    public Logger() {
         prefix = "";
         stack = new ArrayList<>();
     }
 
-    public Msg(String prefixText) {
+    public Logger(String prefixText) {
         prefix = "[" + prefixText + "] ";
         stack = new ArrayList<>();
     }
 
-    public Msg add(String msgText) {
+    public Logger add(String msgText) {
         stack.add(msgText);
         return this;
     }
 
-    public Msg separate() {
+    public Logger separate() {
         stack.add(System.lineSeparator());
         return this;
     }
 
-    public Msg line() {
+    public Logger line() {
         stack.add("--------------------------------------------");
         return this;
     }

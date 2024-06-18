@@ -1,6 +1,6 @@
 package org.example;
 
-import org.example.output.Msg;
+import org.example.logging.Logger;
 
 import java.io.*;
 import java.net.URL;
@@ -44,7 +44,7 @@ public class DataManager {
             InputStream inputStream = urlConnection.getInputStream();
             data = readFromInputStream(inputStream);
         } catch (IOException e) {
-            Msg.err(e);
+            Logger.err(e);
         }
 
         return data;
@@ -55,9 +55,9 @@ public class DataManager {
         try {
             data = new String(Files.readAllBytes(Paths.get(fileName)));
         } catch (NoSuchFileException e) {
-            Msg.err("Unable to read file " + fileName);
+            Logger.err("Unable to read file " + fileName);
         } catch (IOException e) {
-            Msg.err(e);
+            Logger.err(e);
         }
         return data;
     }
@@ -67,9 +67,9 @@ public class DataManager {
         try {
             data = new String(Files.readAllBytes(file.toPath()));
         } catch (NoSuchFileException e) {
-            Msg.err("Unable to read file " + file.getPath());
+            Logger.err("Unable to read file " + file.getPath());
         } catch (IOException e) {
-            Msg.err(e);
+            Logger.err(e);
         }
         return data;
     }
@@ -115,6 +115,7 @@ public class DataManager {
         String json = "";
 
         if (isYaml(fileName)) {
+            // todo
         } else if (isJson(fileName)) {
             json = rawString;
         }
@@ -140,7 +141,9 @@ public class DataManager {
         String schema = "";
 
         if (isYaml(fileName)) {
+            // todo
         } else if (isJson(fileName)) {
+            // todo
         } else if (isSchema(fileName)) {
             schema = rawString;
         }
@@ -155,7 +158,7 @@ public class DataManager {
                 records.add(getRecordFromCSVLine(scanner.nextLine()));
             }
         } catch (FileNotFoundException e) {
-            Msg.err(e);
+            Logger.err(e);
         }
 
         return records;
